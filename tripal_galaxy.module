@@ -128,12 +128,8 @@ function tripal_galaxy_menu() {
     'title' => 'Workflows',
     'description' => 'Lists the available workflows for the user',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array(
-      'tripal_galaxy_admin_available_wf_form',
-    ),
-    'access arguments' => array (
-      'administer galaxy'
-    ),
+    'page arguments' => array('tripal_galaxy_admin_available_wf_form'),
+    'access arguments' => array('administer galaxy'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'includes/tripal_galaxy.admin_wf_form.inc',
     'file path' => drupal_get_path('module', 'tripal_galaxy')
@@ -150,7 +146,7 @@ function tripal_galaxy_menu() {
     'file' => 'includes/tripal_galaxy.admin_wf_form_add.inc',
     'file path' => drupal_get_path('module', 'tripal_galaxy' )
   );
-
+  
   // Remove Workflows
   $items['admin/tripal/extension/galaxy/available_wf/remove/%'] = array (
     'description' => 'Remove a Workflow from site',
