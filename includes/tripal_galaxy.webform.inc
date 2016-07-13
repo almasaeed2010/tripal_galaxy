@@ -313,7 +313,15 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
   $webform_value = "";
   // the webform type determines whether the tool entry should be a text field,
   // number field, or selection box
-  $webform_type = 'select';
+  if(array_key_exists('type', $tool_input)) {
+    if($tool_input['type'] == 'integer') {
+      $webform_type = 'number'; 
+    }
+    else {
+      $webform_type = 'select';
+    }
+  }
+
   $input_name = '';
   $is_required = 0;
   $extra = array(
@@ -388,7 +396,7 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
       $webform_type = 'select';
       foreach ($tool_input['options'] as $key => $vals) {
         foreach ($vals as $details) {
-          $extra['items'] .= $details['id'] . '|' . $details['name'] . "\n";
+          $extra['items'] .= $details['id'] . '|' . $details['name'] . "\r\n";
         }
       }
       $webform_value = '';
@@ -408,7 +416,7 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
     case 'boolean':
       // Boolean should have a single true/false value. It is also likely to
       // not have 'options' So we must invent our own
-      $extra['items'] = "t|True\nf|False";
+      $extra['items'] = "t|True\r\nf|False";
       $extra['aslist'] = 0;
       break;
 
