@@ -373,7 +373,7 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
         $extra['multiple'] = 1;
       }
       break;
-
+     
     case 'data_column':
       // Data_column should be the default list drop-down.
       $extra['multiple'] = 0;
@@ -398,6 +398,8 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
       break;
 
     case 'integer':
+      //TODO: implement max 
+      $webform_type = 'number';
       break;
 
     case 'float':
