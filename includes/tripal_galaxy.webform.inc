@@ -296,14 +296,14 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
     foreach ($tool_input['options'] as $key => $val) {
       // The val is now that sub-array containing the human readable option 
       // (index 0) as well as the unique key-name (index 1).
-      if(is_array($val) and !empty($val)) {
-      $inputs .= $val[1] . '|' . $val[0] . "\r\n";
+      if(is_array($val) and !empty($val) ) {
+        $inputs .= $val[1] . '|' . $val[0] . "\r\n";
       }
     }
   }
   
   if(empty($inputs)) {
-    $inputs = "0|Placeholder";
+    $inputs = "";
   }
   
   $options = array();
