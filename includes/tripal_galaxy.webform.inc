@@ -406,11 +406,30 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
       break;
 
     case 'integer':
-      //TODO: implement max 
       $webform_type = 'number';
+      
+      // Implement maximum and minimum
+      if(array_key_exists('max', $tool_input)){
+         $extra['max'] = $tool_input['max'];
+      }
+      if(array_key_exists('min', $tool_input)){
+        $extra['min']= $tool_input['min'];
+      }
+        
       break;
 
     case 'float':
+        $webform_type = 'number';
+        $extra['decimals'] = 9;
+        
+      // Implement maximum and minimum
+      if(array_key_exists('max', $tool_input)){
+         $extra['max'] = $tool_input['max'];
+      }
+      if(array_key_exists('min', $tool_input)){
+        $extra['min']= $tool_input['min'];
+      }
+      
       break;
 
     case 'boolean':
