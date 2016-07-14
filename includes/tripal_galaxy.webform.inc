@@ -51,18 +51,17 @@ function tripal_galaxy_build_webform($galaxy_id, $workflow_id) {
     drupal_set_message('Cannot find workflow. ' . $galaxy_instance->getErrorMessage(), 'error');
     return FALSE;
   }
-//   dpm($workflow);
 
-  // Select a target history by using the first history owned by the user.
+  // Select a target history by using the current history owned by the user.
   // The history_id is required for retrieving tool information for a workflow.
   // Also, the workflow must be owned by the user.
   $history_instance = new GalaxyHistories($galaxy_instance);
-  $histories = $history_instance->index();
-  $target_history = $histories[0];
-
+  
+  // TODO: https://github.com/galaxyproject/blend4php/issues/18
+  $target_history = $history_instance->getCurrentHistory();
+  
   // Construct web form components based on workflow steps.
   $i = 1;
-  dpm($workflow);
   $steps = $workflow['steps'];
   foreach ($steps as $step_index => $step) { 
 
@@ -78,7 +77,7 @@ function tripal_galaxy_build_webform($galaxy_id, $workflow_id) {
             'history_id' => $target_history['id']
           )
       );
-
+      
       // Make sure tool informaiton is correct.
       if (!$tool) {
         drupal_set_message('Cannot retrieve tool information from Galaxy: ' . $tool_id, 'Error' );
