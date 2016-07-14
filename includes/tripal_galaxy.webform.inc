@@ -57,8 +57,8 @@ function tripal_galaxy_build_webform($galaxy_id, $workflow_id) {
   // Also, the workflow must be owned by the user.
   $history_instance = new GalaxyHistories($galaxy_instance);
   
-  // TODO: https://github.com/galaxyproject/blend4php/issues/18
-  $target_history = $history_instance->getCurrentHistory();
+  // TODO: https://github.com/galaxyproject/galaxy/issues/2404
+  $target_history = $history_instance->getMostRecentlyUsed();
   
   // Construct web form components based on workflow steps.
   $i = 1;
