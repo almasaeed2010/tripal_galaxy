@@ -264,6 +264,7 @@ function tripal_galaxy_admin_add_wf_form_submit($form, &$form_state) {
           throw new Exception('Could not create workflow');
         }
         drupal_set_message(t('Workflow Added'));
+        drupal_set_message(t('Workflow will pull information from the server\'s most recent history'), "warning");
       }
       catch (Exception $e) {
         $transaction->rollback();
