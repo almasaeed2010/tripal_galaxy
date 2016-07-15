@@ -379,6 +379,10 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
         $extra['aslist'] = 0;
         $extra['multiple'] = 1;
       }
+      if (array_key_exists ( 'value', $tool_input )) {
+        foreach($tool_input[])
+        $tool_input['value'];
+      }
       break;
      
     case 'data_column':
