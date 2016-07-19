@@ -289,39 +289,39 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
     
     // Initiate variables. By default, these variables will create
     // A drop-down list webform component.
-    
-  // This block extracts all of the coditionals that form elements will be 
-  // listening in and seeing if they meet the given condition to reveal 
-  // other components
-  $conditional_src = array();
+  $component = array ();
+  
+  // This block extracts all of the coditionals that form elements will be
+    // listening in and seeing if they meet the given condition to reveal
+    // other components
+  $conditional_src = array ();
   if (array_key_exists('test_param', $tool_input)) {
-      $conditional_src['test_param'] = $tool_input['test_param'];
-      if (array_key_exists('options', $conditional_src['test_param'])){
-        $conditional_src['src_options'] = $conditional_src['test_param']['options'];
-        
-        // This is where a loop should be implemented to extract
-        // more conditionals and other options
-      }
+    $conditional_src ['test_param'] = $tool_input ['test_param'];
+    if (array_key_exists('options', $conditional_src ['test_param'])) {
+      $conditional_src ['src_options'] = $conditional_src ['test_param'] ['options'];
+      
+      // This is where a loop should be implemented to extract
+      // more conditionals and other options
     }
-    
-    // This block extracts the destination components when a conditional
-    // case is satisfied
-    $conditional_dest = array();
-    $conditional_dest['available'] = array();
-    if (array_key_exists('cases', $tool_input)) {
-      $conditional_dest['cases'] = $tool_input['cases'];
-      foreach ($conditional_dest['cases'] as $key => $val) {
-        if (array_key_exists('inputs', $val)) {
-          $conditional_dest['inputs_reveal'] = $val['inputs'];
-          foreach($conditional_dest['inputs_reveal'] as $key => $val){
-            if(array_key_exists('options', $val)){
-              array_push($conditional_dest['available'], $val['options']);
-            }
-          }
-          
-        }
-      }
+  }
+  
+  $inputs = "";
+  foreach ($conditional_src['src_options'] as list($label, $key)){
+    $inputs .= $key . "|" . $label . "\r\n";
+  }
+  
+  // This block extracts the destination components when a conditional
+  // case is satisfied
+  $conditional_dest = array ();
+  $conditional_dest ['cases'] = array();
+  if (array_key_exists('cases', $tool_input)) {
+    foreach ($tool_input['cases'] as $index => $case){
+      $conditional_dest['cases'][$case['value']] = $case['inputs'];
     }
+  }
+  
+  foreach ($conditional_dest['cases'] as $key => $options) {
+  }
   
     dpm($conditional_src);
     dpm($conditional_dest);
@@ -342,20 +342,6 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
 //     foreach ($tool_input['cases'] as)
 //   }
   
-  
-  // This is for the test param recursive step
-  if(array_key_exists('options', $tool_input)) {
-    $inputs = '';
-    // Generate the options that will be put under 
-    foreach ($tool_input['options'] as $key => $val) {
-      // The val is now that sub-array containing the human readable option 
-      // (index 0) as well as the unique key-name (index 1).
-      if(is_array($val) and !empty($val) and count($val) >= 2) {
-        $inputs .= $val[1] . '|' . $val[0] . "\r\n";
-      }
-    }
-  }
-  
   if(empty($inputs) and array_key_exists('text_value', $tool_input)) {
     $inputs = $tool_input['text_value'];
   }
@@ -365,7 +351,6 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
   }
   
   $options = array();
-  $component = array ();
   $is_list = 1;
   $webform_value = "";
   // the webform type determines whether the tool entry should be a text field,
