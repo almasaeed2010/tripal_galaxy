@@ -286,9 +286,61 @@ function tripal_galaxy_add_webform_non_tool_input(&$components, $step, $step_ind
  *   FALSE otherwise.
  */
 function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $tool_input, $steps, $step_index, $pid = 0) {
-
-  // Initiate variables. By default, these variables will create
-  // A drop-down list webform component.
+    
+    // Initiate variables. By default, these variables will create
+    // A drop-down list webform component.
+    
+  // This block extracts all of the coditionals that form elements will be 
+  // listening in and seeing if they meet the given condition to reveal 
+  // other components
+  $conditional_src = array();
+  if (array_key_exists('test_param', $tool_input)) {
+      $conditional_src['test_param'] = $tool_input['test_param'];
+      if (array_key_exists('options', $conditional_src['test_param'])){
+        $conditional_src['src_options'] = $conditional_src['test_param']['options'];
+        
+        // This is where a loop should be implemented to extract
+        // more conditionals and other options
+      }
+    }
+    
+    // This block extracts the destination components when a conditional
+    // case is satisfied
+    $conditional_dest = array();
+    $conditional_dest['available'] = array();
+    if (array_key_exists('cases', $tool_input)) {
+      $conditional_dest['cases'] = $tool_input['cases'];
+      foreach ($conditional_dest['cases'] as $key => $val) {
+        if (array_key_exists('inputs', $val)) {
+          $conditional_dest['inputs_reveal'] = $val['inputs'];
+          foreach($conditional_dest['inputs_reveal'] as $key => $val){
+            if(array_key_exists('options', $val)){
+              array_push($conditional_dest['available'], $val['options']);
+            }
+          }
+          
+        }
+      }
+    }
+  
+    dpm($conditional_src);
+    dpm($conditional_dest);
+    
+  
+//   dpm(each($tool_input));
+  
+//   $source_conditionals = array();
+//   if(array_key_exists('test_param', $tool_input)){
+//     foreach($tool_input['test_param']['options'] as $source){
+//       array_push($source_conditionals, $source);
+//     }
+//     dpm($source_conditionals);
+//   }
+  
+//   $dest_conditionals = array();
+//   if (array_key_exists('cases', $tool_input)) {
+//     foreach ($tool_input['cases'] as)
+//   }
   
   
   // This is for the test param recursive step
@@ -482,9 +534,12 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
       
       // what is unique about the test_param so that we may extract the options
       // from it
-      tripal_galaxy_add_webform_tool_input($components, $conditionals, $tool_input['test_param'], $steps, $step_index, $pid);
+      
+//       tripal_galaxy_add_webform_tool_input($components, $conditionals, $tool_input['test_param'], $steps, $step_index, $pid);
       $num_components = count($components) - 1;
       $source_id = $components[$num_components]['cid'];
+//       dpm("Source:" . $source_id);
+//       dpm($components[$num_components]);
       
       $i = 0;
       
@@ -493,13 +548,12 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
       foreach ($tool_input['cases'] as $case) {
         foreach ($case['inputs'] as $input) {
           
-//           dpm($i++);
-//           dpm($input);
-          
-          // TODO: Why is this here?
-          tripal_galaxy_add_webform_tool_input($components, $conditionals, $input, $steps, $step_index, $pid);
+//           tripal_galaxy_add_webform_tool_input($components, $conditionals, $input, $steps, $step_index, $pid);
           $num_components = count($components) - 1;
           $target_id = $components[$num_components]['cid'];
+//           dpm("Target:" . $target_id);
+//           dpm($components[$num_components]);
+          
           
           // TODO: CONNOR: Add each conditional here
           $place_holder = 1;
@@ -508,9 +562,6 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
             'weight' => 1,
             'rules' => array(
               array(
-//                 'nid' => $place_holder,
-//                 'rgid' => $place_holder,
-//                 'rid' => $place_holder,
                 'source_type' => 'component',
                 'source' => $place_holder, // This is where the conditional
                 // element will be listening
@@ -523,8 +574,6 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
             // What will happen when the conditional is met
             'actions' => array(
               array(
-//                 'nid' => $place_holder,
-//                 'rgid' => $place_holder,
                 'aid' => $place_holder,
                 'target_type' => 'component',
                 'target' => $place_holder, // This will be the result of the
