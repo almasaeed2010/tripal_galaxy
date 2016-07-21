@@ -295,13 +295,16 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
     // listening in and seeing if they meet the given condition to reveal
     // other components
   $conditional_src = array ();
+  $conditional_src ['src_options'] = array();
   if (array_key_exists('test_param', $tool_input)) {
     $conditional_src ['test_param'] = $tool_input ['test_param'];
     if (array_key_exists('options', $conditional_src ['test_param'])) {
-      $conditional_src ['src_options'] = $conditional_src ['test_param'] ['options'];
+      foreach($conditional_src['test_param']['options'] as $index => list($label, $key, $boolean)){
+        $conditional_src['src_options'][$key] = array($label, $boolean);
+      }
       
       // This is where a loop should be implemented to extract
-      // more conditionals and other options
+      // more source conditionals and other options
     }
   }
   
@@ -320,14 +323,29 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
     }
   }
   
-  foreach ($conditional_dest['cases'] as $key => $options) {
+  
+  // Here I unwind any other revealing options that are nested within the
+  // the result conditionals
+  foreach ($conditional_dest['cases'] as $key => $contents) {
+    // inside the $contents are the options to the revealed conditional that
+    // was chosen based off of the source conditional
+    if (array_key_exists('help', $contents)){
+    }
+    if(array_key_exists('options', $contents)){
+    }
+    
+    
   }
   
     dpm($conditional_src);
     dpm($conditional_dest);
     
-  
-//   dpm(each($tool_input));
+    // if any src_option index is chosen find the corresponding case
+    // key and render all of the options beneath it
+    
+    
+    
+    
   
 //   $source_conditionals = array();
 //   if(array_key_exists('test_param', $tool_input)){
@@ -523,8 +541,6 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
 //       tripal_galaxy_add_webform_tool_input($components, $conditionals, $tool_input['test_param'], $steps, $step_index, $pid);
       $num_components = count($components) - 1;
       $source_id = $components[$num_components]['cid'];
-//       dpm("Source:" . $source_id);
-//       dpm($components[$num_components]);
       
       $i = 0;
       
@@ -536,8 +552,6 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
 //           tripal_galaxy_add_webform_tool_input($components, $conditionals, $input, $steps, $step_index, $pid);
           $num_components = count($components) - 1;
           $target_id = $components[$num_components]['cid'];
-//           dpm("Target:" . $target_id);
-//           dpm($components[$num_components]);
           
           
           // TODO: CONNOR: Add each conditional here
