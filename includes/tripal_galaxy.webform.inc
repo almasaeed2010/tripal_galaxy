@@ -333,19 +333,19 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
           if (array_key_exists('cases', $iterate)) {
             // This block extracts the destination components when a conditional
             // case is satisfied
-            foreach ($iterate ['cases'] as $index => $case) {
-              $conditional_dest ['cases'] [$iterate['name']] = $case ['inputs'];
+            foreach ($iterate ['cases'] as $index => $instance) {
+              $conditional_dest ['cases'] [$iterate['name']] = $instance['inputs'];
             }
       
             // And the 'cases' component to its conditional dest
       
             // If there is another compoment nested in this we will loop back up.
-            foreach($case['inputs'] as $index => $contents){
-              if (array_key_exists('cases', $contents))
-                dpm($contents['label'] . ":" . $case['value']);
+            foreach($case['inputs'] as $index => $stuff){
+              if (array_key_exists('cases', $stuff))
+                dpm($stuff);
                 // Else we leave the unwinding entirely.
-                else
-                  break;
+//                 else
+//                   break;
             }
 
         }
