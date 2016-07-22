@@ -292,15 +292,23 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
   $component = array ();
   
   // This block extracts all of the coditionals that form elements will be
-    // listening in and seeing if they meet the given condition to reveal
-    // other components
+  // listening in and seeing if they meet the given condition to reveal
+  // other components
   $conditional_src = array ();
   $conditional_src ['src_options'] = array();
-  if (array_key_exists('test_param', $tool_input)) {
-    $conditional_src ['test_param'] = $tool_input ['test_param'];
+  $conditional_dest = array ();
+  $conditional_dest ['cases'] = array();
+  $conditional_dest ['inputs'] = array();
+  
+  $iterate = $tool_input;
+  if (array_key_exists('test_param', $iterate)) {
+    $conditional_src ['test_param'] = $iterate ['test_param'];
     if (array_key_exists('options', $conditional_src ['test_param'])) {
-      foreach($conditional_src['test_param']['options'] as $index => list($label, $key, $boolean)){
-        $conditional_src['src_options'][$key] = array($label, $boolean);
+      foreach ($conditional_src ['test_param'] ['options'] as $index => list ($label, $key, $boolean)) {
+        $conditional_src ['src_options'] [$key] = array (
+          $label,
+          $boolean 
+        );
       }
       
       // This is where a loop should be implemented to extract
@@ -309,57 +317,53 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
   }
   
   $inputs = "";
-  foreach ($conditional_src['src_options'] as list($label, $key)){
+  foreach ($conditional_src ['src_options'] as list ($label, $key)) {
     $inputs .= $key . "|" . $label . "\r\n";
   }
   
-  // This block extracts the destination components when a conditional
-  // case is satisfied
-  $conditional_dest = array ();
-  $conditional_dest ['cases'] = array();
-  if (array_key_exists('cases', $tool_input)) {
-    foreach ($tool_input['cases'] as $index => $case){
-      $conditional_dest['cases'][$case['value']] = $case['inputs'];
-    }
-  }
-  
-  
-  // Here I unwind any other revealing options that are nested within the
-  // the result conditionals
-  foreach ($conditional_dest['cases'] as $key => $contents) {
-    // inside the $contents are the options to the revealed conditional that
-    // was chosen based off of the source conditional
-    if (array_key_exists('help', $contents)){
-    }
-    if(array_key_exists('options', $contents)){
-    }
+  foreach ($iterate ['cases'] as $index => $case) {
+    $conditional_dest ['cases'] [$case ['value']] = $case ['inputs'];
     
     
+    
+    foreach($case['inputs'] as $index => $contents){
+      if ($contents['type'] == 'conditional') {
+        // I need to begin to unwind here
+        $iterate = $contents;
+          if (array_key_exists('cases', $iterate)) {
+            // This block extracts the destination components when a conditional
+            // case is satisfied
+            foreach ($iterate ['cases'] as $index => $case) {
+              $conditional_dest ['cases'] [$iterate['name']] = $case ['inputs'];
+            }
+      
+            // And the 'cases' component to its conditional dest
+      
+            // If there is another compoment nested in this we will loop back up.
+            foreach($case['inputs'] as $index => $contents){
+              if (array_key_exists('cases', $contents))
+                dpm($contents['label'] . ":" . $case['value']);
+                // Else we leave the unwinding entirely.
+                else
+                  break;
+            }
+
+        }
+      }
+      else{
+        $conditional_dest['inputs'][$contents['label'] . ":" . $case['value']] = $contents;
+      }
+    }
+
   }
-  
+
     dpm($conditional_src);
     dpm($conditional_dest);
+    dpm($inputs);
     
-    // if any src_option index is chosen find the corresponding case
-    // key and render all of the options beneath it
+    // if any src_option key = case key then render all of the options beneath
+    // it.
     
-    
-    
-    
-  
-//   $source_conditionals = array();
-//   if(array_key_exists('test_param', $tool_input)){
-//     foreach($tool_input['test_param']['options'] as $source){
-//       array_push($source_conditionals, $source);
-//     }
-//     dpm($source_conditionals);
-//   }
-  
-//   $dest_conditionals = array();
-//   if (array_key_exists('cases', $tool_input)) {
-//     foreach ($tool_input['cases'] as)
-//   }
-  
   if(empty($inputs) and array_key_exists('text_value', $tool_input)) {
     $inputs = $tool_input['text_value'];
   }
