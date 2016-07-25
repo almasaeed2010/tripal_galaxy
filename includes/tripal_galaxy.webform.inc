@@ -323,43 +323,39 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
   
   foreach ($iterate ['cases'] as $index => $case) {
     $conditional_dest ['cases'] [$case ['value']] = $case ['inputs'];
-    
-    
-    
-    foreach($case['inputs'] as $index => $contents){
-      if ($contents['type'] == 'conditional') {
+    foreach ($case ['inputs'] as $index => $contents) {
+      
+      // At this if statement I need to use looping mechanism to get any nested
+      // conditionals.
+      if ($contents ['type'] == 'conditional') {
         // I need to begin to unwind here
         $iterate = $contents;
-          if (array_key_exists('cases', $iterate)) {
-            // This block extracts the destination components when a conditional
-            // case is satisfied
-            foreach ($iterate ['cases'] as $index => $instance) {
-              $conditional_dest ['cases'] [$iterate['name']] = $instance['inputs'];
-            }
-      
-            // And the 'cases' component to its conditional dest
-      
-            // If there is another compoment nested in this we will loop back up.
-            foreach($case['inputs'] as $index => $stuff){
-              if (array_key_exists('cases', $stuff))
-                dpm($stuff);
-                // Else we leave the unwinding entirely.
-//                 else
-//                   break;
+        if (array_key_exists('cases', $iterate)) {
+          // This block extracts the destination components when a conditional
+          // case is satisfied
+          foreach ($iterate ['cases'] as $index => $instance) {
+            $conditional_dest ['inputs'] [$iterate ['name'] . ":" . $instance['value']] = $instance ['inputs'];
+            foreach($instance['inputs'] as $index => $content){
+              if(array_key_exists('cases', $content)){
+                $inner = $content;
+                foreach($inner['cases'] as $index => $instance){
+                  $conditional_dest ['inputs'] [$instance ['name'] . ":" . $instance['value']] = $instance ['inputs'];
+                }
+              }
             }
 
+          }
         }
       }
-      else{
-        $conditional_dest['inputs'][$contents['label'] . ":" . $case['value']] = $contents;
+      else {
+        $conditional_dest ['inputs'] [$contents ['label'] . ":" . $case ['value']] = $contents;
       }
     }
-
   }
 
     dpm($conditional_src);
     dpm($conditional_dest);
-    dpm($inputs);
+//     dpm($inputs);
     
     // if any src_option key = case key then render all of the options beneath
     // it.
