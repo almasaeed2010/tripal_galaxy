@@ -371,6 +371,25 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
 
     dpm($conditional_src);
     dpm($conditional_dest);
+    
+    
+    // Here I need to loop through the nested conditionals inside of $conditional_dest
+    
+    foreach ($conditional_dest['inputs'] as $associative_key => $contents){
+      // This means that the contents to this key => val set in the 
+      // $conditonal_dest array IS conditional therefore we should unwind it.
+      if(!array_key_exists($associative_key, $conditional_src)){
+        $iterate = $contents;
+        foreach($iterate as $index => $possible_conditional){
+          // here we are at the point to see if the $possible_conditional is a 
+          // conditional or if we need to simply add this as a 'vanilla' 
+          // option in the respective ['inputs'] spot
+        }
+          
+      }
+    }
+    
+    
 //     dpm($inputs);
     
     // if any src_option key = case key then render all of the options beneath
