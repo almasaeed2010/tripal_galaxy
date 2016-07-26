@@ -322,8 +322,14 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
   }
   
   foreach ($iterate ['cases'] as $index => $case) {
+    
+    
     $conditional_dest ['cases'] [$case ['value']] = $case ['inputs'];
+    
     foreach ($case ['inputs'] as $index => $contents) {
+      
+      // This loop has the options associated with the direct choice
+      
       
       // At this if statement I need to use looping mechanism to get any nested
       // conditionals.
@@ -333,22 +339,32 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
         if (array_key_exists('cases', $iterate)) {
           // This block extracts the destination components when a conditional
           // case is satisfied
+//           $conditional_dest['inputs'][$iterate['name']] = array();
+          
+          
           foreach ($iterate ['cases'] as $index => $instance) {
-            $conditional_dest ['inputs'] [$iterate ['name'] . ":" . $instance['value']] = $instance ['inputs'];
-            foreach($instance['inputs'] as $index => $content){
-              if(array_key_exists('cases', $content)){
-                $inner = $content;
-                foreach($inner['cases'] as $index => $instance){
-                  $conditional_dest ['inputs'] [$instance ['name'] . ":" . $instance['value']] = $instance ['inputs'];
-                }
-              }
-            }
+            
+            $conditional_dest ['inputs'] [$iterate ['name']][$instance['value']] = $instance ['inputs'];
+           
+//             foreach($instance['inputs'] as $index => $content){
+//               if(array_key_exists('cases', $content)){
+//                 $inner = $content;
+//                 foreach($inner['cases'] as $index => $instance){
+            
+//                   $conditional_dest ['inputs'][$instance['value']][$inner ['name']] = $instance ['inputs'];
+                
+//                 }
+//               }
+//               else{
+//                 $conditional_dest['inputs'][$iterate['name']][$content['name']] = $content;
+//               }
+//             }
 
           }
         }
       }
       else {
-        $conditional_dest ['inputs'] [$contents ['label'] . ":" . $case ['value']] = $contents;
+        $conditional_dest ['inputs'][$case['value']][$contents ['label']] = $contents;
       }
     }
   }
