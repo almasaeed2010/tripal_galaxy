@@ -301,6 +301,7 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
   $conditional_dest ['inputs'] = array();
   
   $iterate = $tool_input;
+  
   if (array_key_exists('test_param', $iterate)) {
     $conditional_src ['test_param'] = $iterate ['test_param'];
     if (array_key_exists('options', $conditional_src ['test_param'])) {
@@ -321,53 +322,54 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
     $inputs .= $key . "|" . $label . "\r\n";
   }
   
-  foreach ($iterate ['cases'] as $index => $case) {
+  
+  
+  
+  
+  
+  
+//   foreach ($iterate ['cases'] as $index => $case) {
     
     
-    $conditional_dest ['cases'] [$case ['value']] = $case ['inputs'];
+//     $conditional_dest ['cases'] [$case ['value']] = $case ['inputs'];
     
-    foreach ($case ['inputs'] as $index => $contents) {
+//     foreach ($case ['inputs'] as $index => $contents) {
       
-      // This loop has the options associated with the direct choice
+//       // This loop has the options associated with the direct choice
       
       
-      // At this if statement I need to use looping mechanism to get any nested
-      // conditionals.
-      if ($contents ['type'] == 'conditional') {
+//       // At this if statement use a looping mechanism to get any nested other
+//       // conditionals.
+//       if ($contents ['type'] == 'conditional') {
         // I need to begin to unwind here
-        $iterate = $contents;
-        if (array_key_exists('cases', $iterate)) {
+//         $iterate = $contents;
+        while (array_key_exists('cases', $iterate)) {
           // This block extracts the destination components when a conditional
           // case is satisfied
-//           $conditional_dest['inputs'][$iterate['name']] = array();
-          
-          
+
           foreach ($iterate ['cases'] as $index => $instance) {
             
-            $conditional_dest ['inputs'] [$iterate ['name']][$instance['value']] = $instance ['inputs'];
-           
-//             foreach($instance['inputs'] as $index => $content){
-//               if(array_key_exists('cases', $content)){
-//                 $inner = $content;
-//                 foreach($inner['cases'] as $index => $instance){
+            if(!$instance['inputs']){
+              $conditional_dest ['inputs'] [$iterate ['name']][$instance['value']] = array();
+            }
             
-//                   $conditional_dest ['inputs'][$instance['value']][$inner ['name']] = $instance ['inputs'];
-                
-//                 }
-//               }
-//               else{
-//                 $conditional_dest['inputs'][$iterate['name']][$content['name']] = $content;
-//               }
-//             }
-
+            foreach($instance['inputs'] as $index => $conditional_options){
+ 
+              $conditional_dest ['inputs'] [$iterate ['name']][$instance['value']][$conditional_options['name']] = $conditional_options;
+            }
           }
+          
+          // Though this will add all nested conditionals, but what will 
+          // enable a nested conditional being properly related to its parent?
+          
+          $iterate = $conditional_options;
         }
-      }
-      else {
-        $conditional_dest ['inputs'][$case['value']][$contents ['label']] = $contents;
-      }
-    }
-  }
+//       }
+//       else {
+//         $conditional_dest ['inputs'][$case['value']][$contents ['label']] = $contents;
+//       }
+//     }
+//   }
 
     dpm($conditional_src);
     dpm($conditional_dest);
@@ -375,22 +377,20 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
     
     // Here I need to loop through the nested conditionals inside of $conditional_dest
     
-    foreach ($conditional_dest['inputs'] as $associative_key => $contents){
-      // This means that the contents to this key => val set in the 
-      // $conditonal_dest array IS conditional therefore we should unwind it.
-      if(!array_key_exists($associative_key, $conditional_src)){
-        $iterate = $contents;
-        foreach($iterate as $index => $possible_conditional){
-          // here we are at the point to see if the $possible_conditional is a 
-          // conditional or if we need to simply add this as a 'vanilla' 
-          // option in the respective ['inputs'] spot
-        }
-          
-      }
-    }
-    
-    
-//     dpm($inputs);
+//     foreach ($conditional_dest['inputs'] as $associative_key => $contents){
+//       // This means that the contents to this key => val set in the 
+//       // $conditonal_dest array IS conditional therefore we should unwind it.
+//       if(!array_key_exists($associative_key, $conditional_src)){
+//         $iterate = $contents;
+//         foreach($iterate as $yes_or_no => $options){
+//           foreach($options as $index => $possible_conditional){
+//             // here we are at the point to see if the $possible_conditional is a
+//             // conditional or if we need to simply add this as a 'vanilla'
+//             // option in the respective ['inputs'] spot
+//           }
+//         }
+//       }
+//     }
     
     // if any src_option key = case key then render all of the options beneath
     // it.
