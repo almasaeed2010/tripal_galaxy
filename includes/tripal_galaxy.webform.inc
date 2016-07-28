@@ -297,8 +297,8 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
   $conditional_src = array ();
   $conditional_src ['src_options'] = array();
   $conditional_dest = array ();
-  $conditional_dest ['cases'] = array();
-  $conditional_dest ['inputs'] = array();
+//   $conditional_dest ['cases'] = array();
+//   $conditional_dest ['inputs'] = array();
   
   $iterate = $tool_input;
   
@@ -323,74 +323,15 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
   }
   
   
-  
-  
-  
-  
-  
-//   foreach ($iterate ['cases'] as $index => $case) {
-    
-    
-//     $conditional_dest ['cases'] [$case ['value']] = $case ['inputs'];
-    
-//     foreach ($case ['inputs'] as $index => $contents) {
-      
-//       // This loop has the options associated with the direct choice
-      
-      
-//       // At this if statement use a looping mechanism to get any nested other
-//       // conditionals.
-//       if ($contents ['type'] == 'conditional') {
-        // I need to begin to unwind here
-//         $iterate = $contents;
-        while (array_key_exists('cases', $iterate)) {
-          // This block extracts the destination components when a conditional
-          // case is satisfied
+  if(array_key_exists('cases', $iterate)) {
+    // This block extracts the destination components when a conditional
+    // case is satisfied
+    tripal_galaxy_unwind_conditionals($iterate, $conditional_dest);
 
-          foreach ($iterate ['cases'] as $index => $instance) {
-            
-            if(!$instance['inputs']){
-              $conditional_dest ['inputs'] [$iterate ['name']][$instance['value']] = array();
-            }
-            
-            foreach($instance['inputs'] as $index => $conditional_options){
- 
-              $conditional_dest ['inputs'] [$iterate ['name']][$instance['value']][$conditional_options['name']] = $conditional_options;
-            }
-          }
-          
-          // Though this will add all nested conditionals, but what will 
-          // enable a nested conditional being properly related to its parent?
-          
-          $iterate = $conditional_options;
-        }
-//       }
-//       else {
-//         $conditional_dest ['inputs'][$case['value']][$contents ['label']] = $contents;
-//       }
-//     }
-//   }
+  }
 
     dpm($conditional_src);
     dpm($conditional_dest);
-    
-    
-    // Here I need to loop through the nested conditionals inside of $conditional_dest
-    
-//     foreach ($conditional_dest['inputs'] as $associative_key => $contents){
-//       // This means that the contents to this key => val set in the 
-//       // $conditonal_dest array IS conditional therefore we should unwind it.
-//       if(!array_key_exists($associative_key, $conditional_src)){
-//         $iterate = $contents;
-//         foreach($iterate as $yes_or_no => $options){
-//           foreach($options as $index => $possible_conditional){
-//             // here we are at the point to see if the $possible_conditional is a
-//             // conditional or if we need to simply add this as a 'vanilla'
-//             // option in the respective ['inputs'] spot
-//           }
-//         }
-//       }
-//     }
     
     // if any src_option key = case key then render all of the options beneath
     // it.
@@ -666,4 +607,38 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
     'weight' => $cid,
     'required' => $is_required,
   );
+}
+
+/**
+ * 
+ * @param unknown $current_conditional_type
+ * 
+ * unwind nested conditionals
+ * 
+ * 
+ * 
+ * @return the fully unwound object
+ */
+
+function tripal_galaxy_unwind_conditionals($current_conditional_type, &$conditional_dest){
+  
+  foreach ($current_conditional_type['cases'] as $index => $instance) {
+  
+    if (! $instance ['inputs']) {
+      $conditional_dest[$current_conditional_type['name']] [$instance ['value']] = array ();
+    }
+  
+    foreach ($instance ['inputs'] as $index => $conditional_options) {
+  
+      $conditional_dest [$current_conditional_type['name']] [$instance ['value']][$conditional_options ['name']] = $conditional_options;
+      
+      if(array_key_exists('cases', $conditional_options)){
+        tripal_galaxy_unwind_conditionals($conditional_options, $conditional_dest);
+      }
+      else 
+        continue;
+      // I need to keep the ancestry right so the nesting follows
+  
+    }
+  }
 }
