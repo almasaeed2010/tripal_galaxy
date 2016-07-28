@@ -286,24 +286,56 @@ function tripal_galaxy_add_webform_non_tool_input(&$components, $step, $step_ind
  *   FALSE otherwise.
  */
 function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $tool_input, $steps, $step_index, $pid = 0) {
-
-  // Initiate variables. By default, these variables will create
-  // A drop-down list webform component.
+    
+    // Initiate variables. By default, these variables will create
+    // A drop-down list webform component.
+  $component = array ();
   
+  // This block extracts all of the coditionals that form elements will be
+  // listening in and seeing if they meet the given condition to reveal
+  // other components
+  $conditional_src = array ();
+  $conditional_src ['src_options'] = array();
+  $conditional_dest = array ();
+//   $conditional_dest ['cases'] = array();
+//   $conditional_dest ['inputs'] = array();
   
-  // This is for the test param recursive step
-  if(array_key_exists('options', $tool_input)) {
-    $inputs = '';
-    // Generate the options that will be put under 
-    foreach ($tool_input['options'] as $key => $val) {
-      // The val is now that sub-array containing the human readable option 
-      // (index 0) as well as the unique key-name (index 1).
-      if(is_array($val) and !empty($val) and count($val) >= 2) {
-        $inputs .= $val[1] . '|' . $val[0] . "\r\n";
+  $iterate = $tool_input;
+  
+  if (array_key_exists('test_param', $iterate)) {
+    $conditional_src ['test_param'] = $iterate ['test_param'];
+    if (array_key_exists('options', $conditional_src ['test_param'])) {
+      foreach ($conditional_src ['test_param'] ['options'] as $index => list ($label, $key, $boolean)) {
+        $conditional_src ['src_options'] [$key] = array (
+          $label,
+          $boolean 
+        );
       }
+      
+      // This is where a loop should be implemented to extract
+      // more source conditionals and other options
     }
   }
   
+  $inputs = "";
+  foreach ($conditional_src ['src_options'] as list ($label, $key)) {
+    $inputs .= $key . "|" . $label . "\r\n";
+  }
+  
+  
+  if(array_key_exists('cases', $iterate)) {
+    // This block extracts the destination components when a conditional
+    // case is satisfied
+    tripal_galaxy_unwind_conditionals($iterate, $conditional_dest);
+
+  }
+
+    dpm($conditional_src);
+    dpm($conditional_dest);
+    
+    // if any src_option key = case key then render all of the options beneath
+    // it.
+    
   if(empty($inputs) and array_key_exists('text_value', $tool_input)) {
     $inputs = $tool_input['text_value'];
   }
@@ -313,7 +345,6 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
   }
   
   $options = array();
-  $component = array ();
   $is_list = 1;
   $webform_value = "";
   // the webform type determines whether the tool entry should be a text field,
@@ -486,7 +517,8 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
       
       // what is unique about the test_param so that we may extract the options
       // from it
-      tripal_galaxy_add_webform_tool_input($components, $conditionals, $tool_input['test_param'], $steps, $step_index, $pid);
+      
+//       tripal_galaxy_add_webform_tool_input($components, $conditionals, $tool_input['test_param'], $steps, $step_index, $pid);
       $num_components = count($components) - 1;
       $source_id = $components[$num_components]['cid'];
       
@@ -497,13 +529,10 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
       foreach ($tool_input['cases'] as $case) {
         foreach ($case['inputs'] as $input) {
           
-//           dpm($i++);
-//           dpm($input);
-          
-          // TODO: Why is this here?
-          tripal_galaxy_add_webform_tool_input($components, $conditionals, $input, $steps, $step_index, $pid);
+//           tripal_galaxy_add_webform_tool_input($components, $conditionals, $input, $steps, $step_index, $pid);
           $num_components = count($components) - 1;
           $target_id = $components[$num_components]['cid'];
+          
           
           // TODO: CONNOR: Add each conditional here
           $place_holder = 1;
@@ -512,9 +541,6 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
             'weight' => 1,
             'rules' => array(
               array(
-//                 'nid' => $place_holder,
-//                 'rgid' => $place_holder,
-//                 'rid' => $place_holder,
                 'source_type' => 'component',
                 'source' => $place_holder, // This is where the conditional
                 // element will be listening
@@ -527,8 +553,6 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
             // What will happen when the conditional is met
             'actions' => array(
               array(
-//                 'nid' => $place_holder,
-//                 'rgid' => $place_holder,
                 'aid' => $place_holder,
                 'target_type' => 'component',
                 'target' => $place_holder, // This will be the result of the
@@ -587,4 +611,38 @@ function tripal_galaxy_add_webform_tool_input(&$components, &$conditionals, $too
     'weight' => $cid,
     'required' => $is_required,
   );
+}
+
+/**
+ * 
+ * @param unknown $current_conditional_type
+ * 
+ * unwind nested conditionals
+ * 
+ * 
+ * 
+ * @return the fully unwound object
+ */
+
+function tripal_galaxy_unwind_conditionals($current_conditional_type, &$conditional_dest){
+  
+  foreach ($current_conditional_type['cases'] as $index => $instance) {
+  
+    if (! $instance ['inputs']) {
+      $conditional_dest[$current_conditional_type['name']] [$instance ['value']] = array ();
+    }
+  
+    foreach ($instance ['inputs'] as $index => $conditional_options) {
+  
+      $conditional_dest [$current_conditional_type['name']] [$instance ['value']][$conditional_options ['name']] = $conditional_options;
+      
+      if(array_key_exists('cases', $conditional_options)){
+        tripal_galaxy_unwind_conditionals($conditional_options, $conditional_dest);
+      }
+      else 
+        continue;
+      // I need to keep the ancestry right so the nesting follows
+  
+    }
+  }
 }
