@@ -155,10 +155,6 @@ function tripal_galaxy_build_webform($galaxy_id, $workflow_id) {
             'history_id' => $history['id'],
           )
 		);
-		if($tool_id == "toolshed.g2.bx.psu.edu/repos/mingchen0919/rmarkdown_fastq_dump/rmarkdown_fastqc_dump_pe/1.0.0")
-		{
-			dpm($tool);
-		}
         if (!$tool) {
           $error = $galaxy->getError();
           drupal_set_message('Error building tool: ' . $tool_id . '. ' . $error['message'], 'error');
@@ -639,8 +635,10 @@ function tripal_galaxy_build_webform_add_component($webform,
       // The webform 'file' component wants a size.  Let this default to the
       // server settings.
       $extra['filtering']['size'] = '0';
+      $extra['filtering']['addextensions'] = '';
       // Set the allowed extension as per the rules on Galaxy.
-      if ($input['extensions']) {
+	  // IFF there is an extension named data allow any data type to be uploaded
+      if ($input['extensions']  && !in_array('data', $input['extensions'])) {
         $extra['filtering']['types'] = $input['extensions'];
         $extra['filtering']['addextensions'] = implode(", ", array_values($input['extensions']));
       }
@@ -694,7 +692,8 @@ function tripal_galaxy_build_webform_add_component($webform,
       // server settings.
       $extra['filtering']['size'] = '0';
       // Set the allowed extension as per the rules on Galaxy.
-      if ($input['extensions']) {
+	  // IFF there is only one extension AND that extension is data allow any data type to be uploaded
+      if ($input['extensions']  && !in_array('data', $input['extensions'])) {
         $extra['filtering']['types'] = $input['extensions'];
         $extra['filtering']['addextensions'] = implode(", ", $input['extensions']);
       }
@@ -739,7 +738,7 @@ function tripal_galaxy_build_webform_add_component($webform,
 		 	 
 	  }
 	  
-	  	  if(array_key_exists('falsevalue', $input))
+	   if(array_key_exists('falsevalue', $input))
 	  {
 		   $extra['items'] .= (string)$input['falsevalue']. "|No\n";
 
@@ -973,24 +972,6 @@ function tripal_galaxy_build_webform_get_input_value($workflow, $step_index,
       return $values[$name];
     }
     return '';
-  }
-}
-
-/**
- * This is for tools that have their input files determined by the output of a
- * preceding tool.
- *
- *
- */
-function tripal_galaxy_build_webform_get_input_steps($default_files, $tool_input,
-    &$webform_value, &$webform_type, &$extra){
-  // The tool input type will be select, if there is a key in the $default_files
-  // that matches the $tool_input name then we change the webform_type to
-  // markup and the value to the name of the step's output that this
-  // particular input file is taking in
-  foreach($default_files as $key => $val){
-    // Again $val will be an array containing the elements
-    // step_output AND (more importantly) source_step
   }
 }
 
