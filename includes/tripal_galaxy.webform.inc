@@ -149,10 +149,16 @@ function tripal_galaxy_build_webform($galaxy_id, $workflow_id) {
         // Get the tool details from the Galaxy server.
         $tool_id = $step['tool_id'];
         $gtools = new GalaxyTools($galaxy);
-        $tool = $gtools->build(array(
-          'tool_id' => urlencode($tool_id),
-          'history_id' => $history['id'],
-        ));
+        $tool = $gtools->build(
+		  array(
+            'tool_id' => urlencode($tool_id),
+            'history_id' => $history['id'],
+          )
+		);
+		if($tool_id == "toolshed.g2.bx.psu.edu/repos/mingchen0919/rmarkdown_fastq_dump/rmarkdown_fastqc_dump_pe/1.0.0")
+		{
+			dpm($tool);
+		}
         if (!$tool) {
           $error = $galaxy->getError();
           drupal_set_message('Error building tool: ' . $tool_id . '. ' . $error['message'], 'error');
@@ -288,6 +294,7 @@ function tripal_galaxy_build_webform($galaxy_id, $workflow_id) {
     'conditionals' => $webform->conditionals
   );
 
+	dpm($node->webform);
   // Save the node.
   node_save($node);
   // A new node will have been created be sure to record the nid in the
@@ -710,16 +717,48 @@ function tripal_galaxy_build_webform_add_component($webform,
 
     case 'boolean':
       $webform_type = 'select';
-      if($webform_value == 'true'){
-        $webform_value = 'yes';
-      }
-      else{
-        $webform_value = 'no';
-      }
-      // Boolean should have a single true/false value. It is also likely to
-      // not have 'options' so we must invent our own (galaxy uses 'no' as The
-      // false value and 'yes' as the true value)
-      $extra['items'] = "yes|Yes\nno|No";
+	  $extra['items']  = "";
+	
+	  if(array_key_exists('truevalue', $input))
+	  {
+		   $extra['items'] .= (string)$input['truevalue']. "|Yes\n";
+
+			if($input['value'] == 'true')
+			{
+				$webform_value = $input['truevalue'];
+			}
+	  }
+	  
+	  else
+	  {
+	     $extra['items'] .= "yes|Yes\n";
+		  if($input['value'] == 'true')
+		  {
+			 $webform_value = 'yes'; 
+		  }
+		 	 
+	  }
+	  
+	  	  if(array_key_exists('falsevalue', $input))
+	  {
+		   $extra['items'] .= (string)$input['falsevalue']. "|No\n";
+
+			if($input['value'] == 'false')
+			{
+				$webform_value = $input['falsevalue'];
+			}
+	  }
+	  
+	  else
+	  {
+	     $extra['items'] .= "no|No\n";
+		  if($input['value'] == 'false')
+		  {
+			 $webform_value = 'yes'; 
+		  }
+		 	 
+	  }
+        
       $extra['aslist'] = 0;
 
       // Check defaults
@@ -898,7 +937,6 @@ function tripal_galaxy_build_webform_set_input_extensions($workflow, $input, $da
  */
 function tripal_galaxy_build_webform_get_input_value($workflow, $step_index,
     $input_full_name, $values = array(), $depth = 0) {
-
   // At the first level initialize our values array to the tool inputs
   if ($depth == 0) {
     $values = $workflow['steps'][$step_index]['tool_inputs'];
@@ -928,7 +966,7 @@ function tripal_galaxy_build_webform_get_input_value($workflow, $step_index,
   }
   else {
     // We should have a single key/value pair... not an array.  If we have
-    // an array that is probably because this fucntion is being called
+    // an array that is probably because this function is being called
     // by a conditional that has nested cases, so just return an empty
     // string in that case.
     if (!is_array($values[$name])) {
