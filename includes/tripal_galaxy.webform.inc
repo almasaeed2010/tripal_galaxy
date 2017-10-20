@@ -631,14 +631,14 @@ function tripal_galaxy_build_webform_add_component($webform,
     case 'data':
       // Data appears to be a refer to a file that exists in the user's history.
       $webform_type = 'select';
-      $extra['filtering']['types'] = array('');
+      $extra['filtering']['types'] = array();
       // The webform 'file' component wants a size.  Let this default to the
       // server settings.
       $extra['filtering']['size'] = '0';
-      $extra['filtering']['addextensions'] = '';
       // Set the allowed extension as per the rules on Galaxy.
 	  // IFF there is an extension named data allow any data type to be uploaded
-      if ($input['extensions']  && !in_array('data', $input['extensions'])) {
+      if ($input['extensions']  && !in_array('data', $input['extensions'])) 
+	{
         $extra['filtering']['types'] = $input['extensions'];
         $extra['filtering']['addextensions'] = implode(", ", array_values($input['extensions']));
       }
@@ -687,7 +687,7 @@ function tripal_galaxy_build_webform_add_component($webform,
       // Data collection type refers to an existing data collection in the
       // history.
       $webform_type = 'select';
-      $extra['filtering']['types'] = array('');
+      $extra['filtering']['types'] = array();
       // The webform 'file' component wants a size.  Let this default to the
       // server settings.
       $extra['filtering']['size'] = '0';
