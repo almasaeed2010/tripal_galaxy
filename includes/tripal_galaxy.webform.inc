@@ -637,8 +637,12 @@ function tripal_galaxy_build_webform_add_component($webform,
       $extra['filtering']['size'] = '0';
       // Set the allowed extension as per the rules on Galaxy.
 	  // IFF there is an extension named data allow any data type to be uploaded
-      if ($input['extensions']  && !in_array('data', $input['extensions'])) 
+      if ($input['extensions'])
 	{
+		if(in_array('data', $input['extensions']))
+		{
+			unset($input['extensions']['data']);
+		}
         $extra['filtering']['types'] = $input['extensions'];
         $extra['filtering']['addextensions'] = implode(", ", array_values($input['extensions']));
       }
@@ -693,8 +697,13 @@ function tripal_galaxy_build_webform_add_component($webform,
       $extra['filtering']['size'] = '0';
       // Set the allowed extension as per the rules on Galaxy.
 	  // IFF there is only one extension AND that extension is data allow any data type to be uploaded
-      if ($input['extensions']  && !in_array('data', $input['extensions'])) {
-        $extra['filtering']['types'] = $input['extensions'];
+      if ($input['extensions']  ) 
+	{
+        if(in_array('data', $input['extensions']))
+		{
+			unset($input['extensions']['data']);
+		}
+		  $extra['filtering']['types'] = $input['extensions'];
         $extra['filtering']['addextensions'] = implode(", ", $input['extensions']);
       }
 
