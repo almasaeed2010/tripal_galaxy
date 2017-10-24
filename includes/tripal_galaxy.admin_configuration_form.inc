@@ -125,11 +125,9 @@ function tripal_galaxy_admin_configuration_form_validate($form, &$form_state) {
 
   // Check to see if we are deleting an instance.
   if ($form_state['clicked_button']['#name'] == 'delete') {
-    $server = db_query('tripal_galaxy', 'tg')
-      ->fields('tg')
+    $server = db_delete('tripal_galaxy')
       ->condition('servername', $form_state['values']['servername'])
-      ->execute()
-      ->fetchObject();
+      ->execute();
 
     if ($server) {
       // If there is no entry with this servername return False.
