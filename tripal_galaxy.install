@@ -80,8 +80,7 @@ function tripal_galaxy_add_galaxy_table(&$schema) {
  * Workflow data
  * @param unknown $schema
  */
-function tripal_galaxy_add_workflow_submission_table(&$schema){
-
+function tripal_galaxy_add_workflow_submission_table(&$schema) {
   $schema['tripal_galaxy_workflow_submission'] = array(
     'table' => 'tripal_galaxy_workflow_submission',
     'fields' => array (
@@ -128,7 +127,7 @@ function tripal_galaxy_add_workflow_submission_table(&$schema){
       'sid' => array('sid'),
       'galaxy_workflow_id' => array('galaxy_workflow_id'),
     ),
-    'unique' => array(
+    'unique keys' => array(
       'sid_uq1' => array('sid'),
     ),
   );
@@ -137,8 +136,7 @@ function tripal_galaxy_add_workflow_submission_table(&$schema){
 /**
  * Adds the 'tripal_galaxy_workflow' table to Drupal schema.
  */
-function tripal_galaxy_add_workflow_table(&$schema){
-
+function tripal_galaxy_add_workflow_table(&$schema) {
   $schema['tripal_galaxy_workflow'] = array(
     'table' => 'tripal_galaxy_workflow',
     'fields' => array (
@@ -285,6 +283,96 @@ function tripal_galaxy_add_site_wide_files_table(&$schema) {
   );
 }
 
+function tripal_galaxy_add_tripal_galaxy_users_table(&$schema) {
+  $schema['tripal_galaxy_users'] = array (
+    'table' => 'tripal_galaxy_users',
+    'fields' => array (
+      'galaxy_user_id' => array(
+        'type' => 'serial',
+        'not null' => TRUE
+      ),
+      'galaxy_user' => array(
+        'type' => 'varchar',
+        'lenght' => 256,
+        'not null' => TRUE,
+      ),
+      'mode' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'comment' => "1 = Tripal auto generated username, 2 = User supplied username"
+      ),
+      'api_key' => array(
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array(
+      'galaxy_user_id',
+    ),
+    'foreign keys' => array(
+      'tripal_galaxy' => array(
+        'table' => 'tripal_galaxy',
+        'columns' => array(
+          'galaxy_id' => 'galaxy_id',
+        ),
+      ),
+      'users' => array(
+        'table' => 'users',
+        'columns' => array(
+          'uid' => 'uid',
+        ),
+      ),
+    ),
+    'indexes' => array(
+      'id' => array('galaxy_id', 'uid'),
+      'galaxy_user' => array('galaxy_user'),
+      'uid' => array('uid'),
+    ),
+    'unique keys' => array(
+      'id_uq1' => array('galaxy_id', 'uid'),
+      'galaxy_user_id_uq2' => array('galaxy_id', 'galaxy_user'),
+    ),
+  );
+}
+
+function tripal_galaxy_add_tripal_galaxy_workflow_user_table(&$schema) {
+  $schema['tripal_galaxy_workflow_user'] = array(
+    'table' => 'tripal_galaxy_workflow_user',
+    'fields' => array(
+      'galaxy_user_workflow_user_id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array(
+      'galaxy_user_workflow_user_id',
+    ),
+    'foreign keys' => array(
+      'tripal_galaxy_users' =>  array(
+        'table' => 'tripal_galaxy_users',
+        'columns' => array(
+          'galaxy_user_id' => 'galaxy_user_id',
+        ),
+      ),
+      'tripal_galaxy_workflow_submission' => array(
+        'table' => 'tripal_galaxy_workflow_submission',
+        'columns' => array(
+          'sid' => 'sid',
+        ),
+      ),
+    ),
+    'indexes' => array(
+      'galaxy_user_id' => array('galaxy_user_id'),
+      'sid' => array('sid'),
+    ),
+    'unique keys' => array(
+      'sid_uq1' => array('sid'),
+    )
+  );
+}
+
+
 /**
  * Implements hook_requirements().
  */
@@ -361,6 +449,25 @@ function tripal_galaxy_update_7102() {
         'not NULL' => TRUE,
       )
     );
+  }
+  catch (\PDOException $e) {
+    $error = $e->getMessage();
+    throw new DrupalUpdateException('Could not update the tripal_galaxy_custom_quota table: '. $error);
+  }
+}
+
+/**
+ * Add auto_user column to tripal_galaxy table.
+ */
+function tripal_galaxy_update_7103() {
+  try {
+    $schema = drupal_get_schema('tripal_galaxy');
+    $spec = array(
+      'type' => 'boolean',
+      'default' => 0,
+      'not NULL' => TRUE,
+    );
+    db_add_field('tripal_galaxy', 'auto_user', $spec);
   }
   catch (\PDOException $e) {
     $error = $e->getMessage();
