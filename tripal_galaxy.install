@@ -18,6 +18,8 @@ function tripal_galaxy_schema() {
   tripal_galaxy_add_custom_quota_table($schema);
   tripal_galaxy_add_expiration_files_table($schema);
   tripal_galaxy_add_site_wide_files_table($schema);
+  tripal_galaxy_add_tripal_galaxy_users_table($schema);
+  tripal_galaxy_add_tripal_galaxy_workflow_user_table($schema);
 
   return $schema;
 }
@@ -400,6 +402,8 @@ function tripal_galaxy_uninstall () {
   db_drop_table('tripal_galaxy_workflow_submission');
   db_drop_table('tripal_galaxy_custom_quota');
   db_drop_table('tripal_galaxy_expiration_files');
+  db_drop_table('tripal_galaxy_workflow_user');
+  db_drop_table('tripal_galaxy_users');
 }
 
 
